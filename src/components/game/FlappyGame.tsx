@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useFlappyGame } from '@/hooks/useFlappyGame';
 import { GameCanvas } from './GameCanvas';
 import { FaceUploader } from './FaceUploader';
 import { ScoreDisplay } from './ScoreDisplay';
 import { GameOverModal } from './GameOverModal';
-import { SoundControl } from './SoundControl';
+import { SoundControl, useGameSounds } from './SoundControl';
 
 const CANVAS_WIDTH = 400;
 const CANVAS_HEIGHT = 600;
@@ -29,6 +29,10 @@ export const FlappyGame: React.FC = () => {
     PIPE_GAP,
   } = useFlappyGame(dimensions.width, dimensions.height);
 
+  const { playJumpSound, playScoreSound, playGameOverSound } = useGameSounds();
+  const prevScoreRef = useRef(0);
+  const prevStatusRef = useRef(gameState.gameStatus);
+
   // Handle responsive sizing
   useEffect(() => {
     const handleResize = () => {
@@ -42,18 +46,34 @@ export const FlappyGame: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Play sound effects
+  useEffect(() => {
+    if (gameState.score > prevScoreRef.current) {
+      playScoreSound();
+    }
+    prevScoreRef.current = gameState.score;
+  }, [gameState.score, playScoreSound]);
+
+  useEffect(() => {
+    if (prevStatusRef.current === 'playing' && gameState.gameStatus === 'gameOver') {
+      playGameOverSound();
+    }
+    prevStatusRef.current = gameState.gameStatus;
+  }, [gameState.gameStatus, playGameOverSound]);
+
   // Handle keyboard and touch input
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space' || e.key === ' ') {
         e.preventDefault();
+        playJumpSound();
         jump();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [jump]);
+  }, [jump, playJumpSound]);
 
   const handleImageUpload = useCallback((image: string) => {
     setFaceImage(image);
@@ -66,8 +86,9 @@ export const FlappyGame: React.FC = () => {
   }, []);
 
   const handleCanvasClick = useCallback(() => {
+    playJumpSound();
     jump();
-  }, [jump]);
+  }, [jump, playJumpSound]);
 
   const isNewHighScore = gameState.gameStatus === 'gameOver' && gameState.score === highScore && highScore > 0;
 
@@ -109,6 +130,7 @@ export const FlappyGame: React.FC = () => {
           onClick={handleCanvasClick}
           onTouchStart={(e) => {
             e.preventDefault();
+            playJumpSound();
             jump();
           }}
         >
