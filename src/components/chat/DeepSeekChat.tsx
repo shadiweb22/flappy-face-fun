@@ -146,9 +146,7 @@ export const DeepSeekChat = () => {
               </div>
               
               <div className="space-y-3">
-                <h2 className="text-3xl font-bold text-foreground">
-                  Welcome to DeepSeek Chat
-                </h2>
+                <h2 className="text-3xl font-bold text-foreground">Welcome to Shadix Chat</h2>
                 <p className="text-muted-foreground max-w-md">
                   Experience the power of DeepSeek R1, an advanced reasoning AI model. Ask anything!
                 </p>
