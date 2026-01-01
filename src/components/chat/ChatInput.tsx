@@ -1,14 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Sparkles } from "lucide-react";
+import { Send, Square, Sparkles } from "lucide-react";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
   isLoading: boolean;
+  onStop?: () => void;
 }
 
-export const ChatInput = ({ onSend, isLoading }: ChatInputProps) => {
+export const ChatInput = ({ onSend, isLoading, onStop }: ChatInputProps) => {
   const [input, setInput] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -46,18 +47,25 @@ export const ChatInput = ({ onSend, isLoading }: ChatInputProps) => {
           className="flex-1 min-h-[52px] max-h-[200px] resize-none border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-foreground placeholder:text-muted-foreground"
           disabled={isLoading}
         />
-        <Button
-          type="submit"
-          size="icon"
-          disabled={!input.trim() || isLoading}
-          className="h-12 w-12 rounded-xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all duration-300 shadow-lg hover:shadow-primary/25 disabled:opacity-50"
-        >
-          {isLoading ? (
-            <Sparkles className="h-5 w-5 animate-pulse" />
-          ) : (
+        {isLoading ? (
+          <Button
+            type="button"
+            size="icon"
+            onClick={onStop}
+            className="h-12 w-12 rounded-xl bg-destructive hover:bg-destructive/90 transition-all duration-300 shadow-lg"
+          >
+            <Square className="h-5 w-5 fill-current" />
+          </Button>
+        ) : (
+          <Button
+            type="submit"
+            size="icon"
+            disabled={!input.trim()}
+            className="h-12 w-12 rounded-xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all duration-300 shadow-lg hover:shadow-primary/25 disabled:opacity-50"
+          >
             <Send className="h-5 w-5" />
-          )}
-        </Button>
+          </Button>
+        )}
       </div>
       <p className="text-xs text-muted-foreground text-center mt-2">
         Powered by DeepSeek R1 via Ollama • Press Enter to send
